@@ -1,14 +1,17 @@
 package com.mycompany.selenium;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 public class SeleniumLoginIT {
 
-	public static void main(String[] args) {
-
+	@Test
+	public void loginOk() {
 		// Method and Description - static DesiredCapabilities
 		// internetExplorer()
 		DesiredCapabilities capabilities = DesiredCapabilities
@@ -32,14 +35,18 @@ public class SeleniumLoginIT {
 		WebDriver driver = new InternetExplorerDriver(capabilities);
 
 		driver.manage().window().maximize();
-		driver.get("http://google.com");
+		driver.get("http://localhost:7001/WicketExamples/");
+		driver.findElement(By.name("username")).sendKeys("username");
+		driver.findElement(By.name("pass")).sendKeys("pass");
+		driver.findElement(By.id("hui")).submit();
+		assertTrue(driver.getCurrentUrl().indexOf("SuccessPage") > -1);
 
 		driver.quit();
 	}
 
 	@Test
-	public void homepageRendersSuccessfully() {
-		// Method and Description - static DesiredCapabilities
+	public void loginFailed() {
+		// Method and Description - static ledDesiredCapabilities
 		// internetExplorer()
 		DesiredCapabilities capabilities = DesiredCapabilities
 				.internetExplorer();
@@ -62,7 +69,11 @@ public class SeleniumLoginIT {
 		WebDriver driver = new InternetExplorerDriver(capabilities);
 
 		driver.manage().window().maximize();
-		driver.get("http://google.com");
+		driver.get("http://localhost:7001/WicketExamples/");
+		driver.findElement(By.name("username")).sendKeys("1");
+		driver.findElement(By.name("pass")).sendKeys("pass");
+		driver.findElement(By.id("hui")).submit();
+		assertTrue(driver.getCurrentUrl().indexOf("SuccessPage") == -1);
 
 		driver.quit();
 	}
