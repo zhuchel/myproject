@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>next.javabeat.jsf</groupId>
+	<artifactId>JavaBeat-JSF-Installation</artifactId>
+	<packaging>war</packaging>
+	<version>1.0</version>
+	<name>JavaBeat-JSF-Installation</name>
+
+
+	<properties>
+		<version.arquillian_core>1.1.4.Final</version.arquillian_core>
+		<was_home>C:\Program Files\IBM\WebSphere\AppServer</was_home>
+		<version.ejb_api>3.1.0</version.ejb_api>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.6</java.version>
+		<junit.version>4.9</junit.version>
+		<slf4j.version>1.6.4</slf4j.version>
+		<logback.version>1.0.1</logback.version>
+		<log4j.version>1.2.14</log4j.version>
+
+		<servlet.version>2.5</servlet.version>
+		<jsp.version>2.1</jsp.version>
+		<jstl.version>1.2</jstl.version>
+		<taglibs-standard.version>1.1.2</taglibs-standard.version>
+
+		<maven.compiler.plugin>2.3.2</maven.compiler.plugin>
+		<!-- maven.failsafe.plugin>2.4.3-alpha-1</maven.failsafe.plugin -->
+
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>${version.arquillian_core}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-build</artifactId>
+				<version>${version.arquillian_core}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+
+
+	<build>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.openjpa</groupId>
+				<artifactId>openjpa-maven-plugin</artifactId>
+				<version>2.2.0</version>
+				<configuration>
+					<includes>**/entity/ *.class</includes>
+					<addDefaultConstructor>true</addDefaultConstructor>
+					<!-- connectionDriverName>oracle.jdbc.driver.OracleDriver</connectionDriverName -->
+					<enforcePropertyRestrictions>true</enforcePropertyRestrictions>
+					<skip>${skip.jpa}</skip>
+					<sqlFile>${basedir}/src/main/resources/database.sql</sqlFile>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.openjpa</groupId>
+						<artifactId>openjpa</artifactId>
+						<version>2.1.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-api</artifactId>
+						<version>1.6.6</version>
+					</dependency>
+					<dependency>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-simple</artifactId>
+						<version>1.6.6</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<nonFilteredFileExtensions>
+						<nonFilteredFileExtension>xls</nonFilteredFileExtension>
+					</nonFilteredFileExtensions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.plugin}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.17</version>
+				<configuration>
+					<workingDirectory>${project.build.directory}</workingDirectory>
+					<skip>false</skip>
+					<systemProperties>
+						<property>
+							<name>java.util.logging.config.file</name>
+							<value>${basedir}/src/test/resources/logging.properties</value>
+						</property>
+						<property>
+							<name>myOutDir</name>
+							<value>${project.build.outputDirectory}</value>
+						</property>
+						<!-- <property> <name>com.ibm.websphere.embeddable.configFileName</name> 
+							<value>${basedir}/src/test/resources/was-embedded.properties</value> </property> -->
+					</systemProperties>
+				</configuration>
+			</plugin>
+			<!-- plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>failsafe-maven-plugin</artifactId> 
+				<version>${maven.failsafe.plugin}</version> <executions> <execution> <goals> 
+				<goal>integration-test</goal> <goal>verify</goal> </goals> </execution> </executions> 
+				</plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>copy-installed</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>D:\apache-tomcat-8.0.9\webapps</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<!-- filters> <filter>src/test/resources/rest-test-${build-stage}-${rest-version}.properties</filter> 
+			</filters -->
+	</build>
+
+
+	<profiles>
+		<profile>
+			<id>build-server</id>
+			<properties>
+				<was_home>C:\Program Files\IBM\WebSphere\AppServer</was_home>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>update-db</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>sql-maven-plugin</artifactId>
+						<version>1.5</version>
+						<dependencies>
+							<dependency>
+								<groupId>com.oracle</groupId>
+								<artifactId>ojdbc14</artifactId>
+								<version>10.2.0.3.0</version>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<id>update-db-incremental</id>
+								<phase>process-test-resources</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+									<driver>oracle.jdbc.driver.OracleDriver</driver>
+									<url>jdbc:oracle:thin:@localhost:1521:${schema}</url>
+									<username>${user}</username>
+									<password>${pass}</password>
+									<autocommit>true</autocommit>
+									<orderFile>ascending</orderFile>
+									<fileset>
+										<basedir>src/test/resources/sql/update</basedir>
+										<includes>
+											<include>01*.sql</include>
+										</includes>
+									</fileset>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>create-audit</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>sql-maven-plugin</artifactId>
+						<version>1.5</version>
+						<configuration>
+							<driver>oracle.jdbc.driver.OracleDriver</driver>
+							<url>${db.url}</url>
+							<username>oleg</username>
+							<password>lisoi000</password>
+							<autocommit>true</autocommit>
+							<orderFile>ascending</orderFile>
+							<fileset>
+								<basedir>src/test/resources/sql/audit</basedir>
+								<includes>
+									<include>create_audit_tables.sql</include>
+								</includes>
+							</fileset>
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>com.oracle</groupId>
+								<artifactId>ojdbc14</artifactId>
+								<version>10.2.0.3.0</version>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<id>create-audit-db</id>
+								<phase>process-test-resources</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+
+									<fileset>
+										<basedir>src/test/resources/sql/audit</basedir>
+										<includes>
+											<include>create_audit_tables.sql</include>
+										</includes>
+									</fileset>
+								</configuration>
+							</execution>
+							<execution>
+								<id>create-audit-trigger</id>
+								<phase>process-test-resources</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+									<delimiter>/</delimiter>
+									<delimiterType>row</delimiterType>
+									<fileset>
+										<basedir>src/test/resources/sql/audit</basedir>
+										<includes>
+											<include>create_audit_trigger.sql</include>
+										</includes>
+									</fileset>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>release</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<systemPropertyVariables>
+								<arquillian.launch>websphere</arquillian.launch>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<dependencies>
+
+				<!-- org.jboss.arquillian -->
+				<dependency>
+					<groupId>org.jboss.arquillian.container</groupId>
+					<artifactId>arquillian-container-spi</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.jboss.arquillian.container</groupId>
+					<artifactId>arquillian-container-test-spi</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.jboss.arquillian.protocol</groupId>
+					<artifactId>arquillian-protocol-servlet</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.jboss.arquillian.testenricher</groupId>
+					<artifactId>arquillian-testenricher-cdi</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.jboss.arquillian.testenricher</groupId>
+					<artifactId>arquillian-testenricher-ejb</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.jboss.arquillian.testenricher</groupId>
+					<artifactId>arquillian-testenricher-resource</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.jboss.arquillian.testenricher</groupId>
+					<artifactId>arquillian-testenricher-initialcontext</artifactId>
+				</dependency>
+			</dependencies>
+			<!-- modules> <module>wlp-managed-8.5</module> </modules -->
+		</profile>
+		<profile>
+			<id>mop-rest-test</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<includes>
+								<include>**/*IT.java</include>
+							</includes>
+							<systemPropertyVariables>
+								<rest-test.properties>rest-test-${build-stage}-${rest-version}.properties</rest-test.properties>
+								<myOutDir>${project.build.testOutputDirectory}/</myOutDir>
+							</systemPropertyVariables>
+							<redirectTestOutputToFile>false</redirectTestOutputToFile>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<properties>
+				<rest.server.url />
+			</properties>
+
+		</profile>
+
+	</profiles>
+
+	<dependencies>
+		<!-- com.ibm.websphere -->
+
+		<dependency>
+			<groupId>com.ibm.websphere</groupId>
+			<artifactId>was-embeddableContainer</artifactId>
+			<version>8.0.0</version>
+			<scope>system</scope>
+			<systemPath>${was_home}/runtimes/com.ibm.ws.ejb.embeddableContainer_8.0.0.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ibm.websphere</groupId>
+			<artifactId>was-endorsedAPIs</artifactId>
+			<version>8.0.0</version>
+			<scope>system</scope>
+			<systemPath>${was_home}/runtimes/endorsed/endorsed_apis_8.0.0.jar</systemPath>
+		</dependency>
+
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- end arquillian -->
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${servlet.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>hibernate-jpa-2.0-api</artifactId>
+			<version>1.0.1.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-impl</artifactId>
+			<version>2.2.4</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>2.2.4</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.primefaces</groupId>
+			<artifactId>primefaces</artifactId>
+			<version>4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>javax.servlet.jsp-api</artifactId>
+			<version>2.3.1</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- dependency> <groupId>javax.ws.rs</groupId> <artifactId>jsr311-api</artifactId> 
+			<version>1.1.1</version> <scope>provided</scope> </dependency -->
+
+		<!-- dependency> <groupId>org.codehaus.jackson</groupId> <artifactId>jackson-core-asl</artifactId> 
+			<version>1.9.13</version> </dependency -->
+
+
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc14</artifactId>
+			<version>10.2.0.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.openjpa</groupId>
+			<artifactId>openjpa</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.1.2</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.9</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.ibm.websphere</groupId>
+			<artifactId>ws</artifactId>
+			<version>8.0.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.supercsv</groupId>
+			<artifactId>super-csv</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.ejb</groupId>
+			<artifactId>ejb-api</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-compiler</artifactId>
+			<version>5.4.0.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.5</version>
+		</dependency>
+
+
+
+	</dependencies>
+
+</project>
