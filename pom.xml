@@ -137,6 +137,29 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<!-- here the phase you need -->
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/classes/com/mycompany</outputDirectory>
+							<resources>
+								<resource>
+									<directory>deploy/HomePage.html</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty9.version}</version>
@@ -235,9 +258,36 @@
 			</build>
 		</profile>
 		<profile>
+			<id>prepare-int</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<delete
+											file="${basedir}/target/classes/com/mycompany/HomePage.html" />
+										<copy file="deploy/page/HomePage.html"
+											tofile="${basedir}/target/classes/com/mycompany/HomePage.html" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>create-ds</id>
 			<build>
 				<plugins>
+
 					<plugin>
 						<groupId>com.oracle.weblogic</groupId>
 						<artifactId>weblogic-maven-plugin</artifactId>
